@@ -3,8 +3,11 @@ import { BrowserRouter, Navigate, Route, Routes, Link, useNavigate, useLocation 
 import axios from "axios";
 import { io } from "socket.io-client";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
+// Robust env-aware API selection for production builds
+const _defaultApi = typeof window !== "undefined" && window.location.hostname === "localhost" ? "http://localhost:5000/api" : "https://health-practitioner.onrender.com/api";
+const _defaultSocket = typeof window !== "undefined" && window.location.hostname === "localhost" ? "http://localhost:5000" : "https://health-practitioner.onrender.com";
+const API = import.meta.env.VITE_API_URL || _defaultApi;
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || _defaultSocket;
 const API_HOST = API.replace(/\/api\/?$/, "");
 
 const http = axios.create({ baseURL: API });
