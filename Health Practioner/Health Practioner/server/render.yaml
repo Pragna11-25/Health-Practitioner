@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: health-practitioner-backend
+    env: node
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: MAX_FILE_SIZE_MB
+        value: "20"
+    routes:
+      - type: http
+        path: /api
+        priority: 1
+
+# Important Notes:
+# 1. Set sync: false for sensitive variables - these must be set in Render dashboard
+# 2. CLIENT_ORIGIN should point to your Vercel frontend URL (e.g., https://yourapp.vercel.app)
+# 3. MONGODB_URI requires MongoDB Atlas account and connection string
+# 4. JWT_SECRET must be a strong, random 32+ character string
+# 5. Whitelist Render's IP in MongoDB Atlas Network Access
+# 6. Set region based on your user base
+# 7. The healthCheckPath will verify your backend is running
