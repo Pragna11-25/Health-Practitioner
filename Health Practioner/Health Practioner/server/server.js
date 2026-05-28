@@ -49,7 +49,21 @@ const allowedOrigins = new Set([
   ...(process.env.CLIENT_ORIGIN || "http://localhost:5173" || "https://health-practitioner.onrender.com").split(",").map((origin) => origin.trim()).filter(Boolean),
   "http://127.0.0.1:5173",
   "http://0.0.0.0:5173",
-]);
+]);console.log("Allowed CORS origins:", Array.from(allowedOrigins));
+
+// Handle CORS preflight responses explicitly so browsers receive correct headers.
+app.options("*", (req, res) => {
+  const origin = req.headers.origin;
+  if (!origin || allowedOrigins.has(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin || "");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+    return res.sendStatus(204);
+  }
+  console.warn(`Blocked CORS preflight from origin: ${origin}`);
+  return res.sendStatus(403);
+});
 app.use(
   cors({
     origin: (origin, callback) => {
