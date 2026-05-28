@@ -507,8 +507,10 @@ const start = async () => {
     });
   });
 
-  const port = Number(process.env.PORT || 5000);
-  server.listen(port, () => console.log(`API listening on http://localhost:${port}`));
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 };
 
 start().catch((err) => {
