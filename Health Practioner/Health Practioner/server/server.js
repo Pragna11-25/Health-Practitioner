@@ -46,7 +46,7 @@ const auth = async (req, res, next) => {
 
 app.use(helmet());
 const allowedOrigins = new Set([
-  ...(process.env.CLIENT_ORIGIN || "http://localhost:5173").split(",").map((origin) => origin.trim()).filter(Boolean),
+  ...(process.env.CLIENT_ORIGIN || "http://localhost:5173" || "https://health-practitioner.onrender.com").split(",").map((origin) => origin.trim()).filter(Boolean),
   "http://127.0.0.1:5173",
   "http://0.0.0.0:5173",
 ]);
