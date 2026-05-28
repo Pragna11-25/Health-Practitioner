@@ -52,11 +52,25 @@ const allowedOrigins = new Set([
 ]);
 console.log("Allowed CORS origins:", Array.from(allowedOrigins));
 
+// Utility to allow known origins and Vercel preview domains.
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true; // non-browser requests
+  if (allowedOrigins.has(origin)) return true;
+  try {
+    const parsed = new URL(origin);
+    const host = parsed.hostname || "";
+    if (host.endsWith('.vercel.app')) return true; // allow Vercel preview/permanent domains
+  } catch (_err) {
+    // fall through
+  }
+  return false;
+};
+
 // Handle CORS preflight responses explicitly so browsers receive correct headers.
 app.use((req, res, next) => {
   if (req.method !== "OPTIONS") return next();
   const origin = req.headers.origin;
-  if (!origin || allowedOrigins.has(origin)) {
+  if (isAllowedOrigin(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin || "");
     res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
@@ -66,10 +80,11 @@ app.use((req, res, next) => {
   console.warn(`Blocked CORS preflight from origin: ${origin}`);
   return res.sendStatus(403);
 });
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.has(origin)) return callback(null, true);
+      if (isAllowedOrigin(origin)) return callback(null, true);
       return callback(new Error(`CORS origin not allowed: ${origin}`));
     },
     credentials: true,
